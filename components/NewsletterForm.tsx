@@ -5,14 +5,19 @@ import { FormEvent, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { getPlaneKeyframes } from "@/lib/getPlaneKeyframes";
 import { getTrailsKeyframes } from "@/lib/getTrailsKeyframes";
+import { CheckIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 function NewsletterForm() {
   const [input, setInput] = useState("");
+  const [successMessage, setSuccessMessage] =
+    useState<MembersSuccessResponse>();
+  const [errorMessage, setErrorMessage] = useState("");
   const [active, setActive] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { to, fromTo, set } = gsap;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const email = input;
@@ -33,6 +38,31 @@ function NewsletterForm() {
         keyframes: getTrailsKeyframes(button),
       });
     }
+
+    // POST request to /api/addSubscription
+    const res = await fetch("/api/addSubscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      setErrorMessage("You are already subscribed");
+      setSuccessMessage(undefined);
+      return;
+    }
+
+    setSuccessMessage(data.res);
+    setErrorMessage("");
+  };
+
+  const dismissMessages = () => {
+    setSuccessMessage(undefined);
+    setErrorMessage("");
   };
 
   return (
@@ -42,26 +72,24 @@ function NewsletterForm() {
         className="newsletter-form mt-10 animate-fade-in-3"
       >
         <div className="group flex items-center gap-x-4 py-1 pl-4 pr-1 rounded-[9px] bg-[#090D11] hover:bg-[#15141B] shadow-outline-gray hover:shadow-transparent focus-within:bg-[#15141B] focus-within:!shadow-outline-gray-focus transition-all duration-300">
-          <EnvelopeIcon className="hidden sm:inline w-6 h-6 text-[#4B4V52] group-focus-within:text-white group-hover:text-white transition-colors duration-300" />
+          <EnvelopeIcon className="hidden sm:inline w-6 h-6 text-[#4B4C52] group-focus-within:text-white group-hover:text-white transition-colors duration-300" />
           <input
-            className="flex-1 text-white text-sm sm:text-base outline-none placeholder-[#4B4C52] group-focus-within:placeholder-white bg-transparent placeholder:transition-colors
-placeholder:duration-300"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            type="email"
             placeholder="Email address"
             required
+            type="email"
+            className="flex-1 text-white text-sm sm:text-base outline-none placeholder-[#4B4C52] group-focus-within:placeholder-white bg-transparent placeholder:transition-colors placeholder:duration-300"
           />
           <button
             ref={buttonRef}
-            type="submit"
             className={`${
               active && "active"
-            } disabled:!bg-[#17141F] disabled:grayscale-[65%]
-            disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base`}
+            } disabled:!bg-[#17141F] disabled:grayscale-[65%] disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base`}
             disabled={!input}
+            type="submit"
           >
-           <span className="default">Subscribe</span>
+            <span className="default">Subscribe</span>
             <span className="success">
               <svg viewBox="0 0 16 16">
                 <polyline points="3.75 9 7 12 13 5"></polyline>
@@ -79,7 +107,40 @@ placeholder:duration-300"
           </button>
         </div>
       </form>
-      
+
+      <div className="relative">
+        {(successMessage || errorMessage) && (
+          <div className="flex items-start space-x-2 bg-[#0A0E12] shadow-outline-gray text-white rounded-[9px]
+          py-4 px-6 animate-fade-bottom absolute">
+            <div
+              className="h-6 w-6 bg-[#1B2926] flex items-center justify-center rounded-full border 
+        border-[#273130] flex-shrink-0"
+            >
+              <CheckIcon className="h-4 w-4 text-[#81A89A]" />
+            </div>
+            <div className="text-xs sm:text-sm text-[#4B4C52]">
+            {successMessage ? (
+                <p>
+                  We&apos;ve added{" "}
+                  <span className="text-[#ADB0B1]">
+                    {successMessage.email_address}
+                  </span>{" "}
+                  to our newsletter. 
+                </p>
+              ) : (
+                <p>
+                  You are already added to our newsletter.
+
+                </p>
+              )}
+            </div>
+            <XMarkIcon
+              className="h-5 w-5 cursor-pointer flex-shrink-0 text-[#4A4B55]"
+              onClick={dismissMessages}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

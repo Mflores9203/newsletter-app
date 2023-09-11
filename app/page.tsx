@@ -1,4 +1,5 @@
 import NewsletterForm from "@/components/NewsletterForm";
+import Socials from "@/components/Socials";
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
         from-blue-300 to-blue-700 animate-fade-in-3">Newsletter</h1>
       </div>
       <NewsletterForm/>
-      {/* <Socials/> */}
+      <Socials/>
     </main>
   );
 }
