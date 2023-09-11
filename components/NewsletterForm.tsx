@@ -4,6 +4,7 @@ import { EnvelopeIcon } from "@heroicons/react/24/solid";
 import { FormEvent, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { getPlaneKeyframes } from "@/lib/getPlaneKeyframes";
+import { getTrailsKeyframes } from "@/lib/getTrailsKeyframes";
 
 function NewsletterForm() {
   const [input, setInput] = useState("");
@@ -29,7 +30,7 @@ function NewsletterForm() {
 
       // to gsap animation - for trails
       to(button, {
-        keyframes: getTrailsKeyframes(set, fromTo, button, setActive, setInput),
+        keyframes: getTrailsKeyframes(button),
       });
     }
   };
@@ -60,7 +61,7 @@ placeholder:duration-300"
             disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base`}
             disabled={!input}
           >
-            <span className="default">Subscribe</span>
+           <span className="default">Subscribe</span>
             <span className="success">
               <svg viewBox="0 0 16 16">
                 <polyline points="3.75 9 7 12 13 5"></polyline>
@@ -78,6 +79,7 @@ placeholder:duration-300"
           </button>
         </div>
       </form>
+      
     </div>
   );
 }

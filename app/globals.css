@@ -20,7 +20,7 @@
   --background: #fff;
   --button-text: #ffffff;
   --success: #496ce;
-  --trails: rgb(140, 78, 194, 0.15);
+  --trails: rgba(1, 4, 41, 0.15);
 }
 
 .newsletter-form button {
